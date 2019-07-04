@@ -1,31 +1,86 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+  <div>
+      <loadding v-show = "bloadding"></loadding>
+      <transition
+      enter-active-class = 'fadeIn'
+      leave-active-class = 'fadeOut'
+      >
+        <router-view class="animated" ></router-view>
+      </transition>
+      <section class="aui-scrollView">
+        <Footer v-show = "bfoot"></Footer>
+      </section>
   </div>
 </template>
+<script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-}
+import Footer from './components/footer.vue';
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+import {mapActions,mapGetters} from 'vuex';
 
-#nav a.router-link-exact-active {
-  color: #42b983;
+import * as types from './store/types';
+
+export default {
+  name:'app',
+  // data(){return{
+  //   bool:true
+  // }},
+  components:{
+    Footer,
+  },
+  methods:{
+    checkRouterChange(xin){
+      let path = xin.path
+      // console.log(path)
+      if(/pages|special|login|reg/.test(path)){
+        this.$store.dispatch(types.View_foot,false)
+      
+      }else if(/home|video|recommend|user/.test(path)){
+        this.$store.dispatch(types.View_foot,true) 
+      }else{
+          this.$store.dispatch(types.View_foot,false)
+      }
+    }
+  },
+   watch:{
+    //  省略前面的this的
+    $route:{
+      deep:true,
+      immediate:true,
+      handler:'checkRouterChange'
+    },
+    shop(news,old){
+      // console.log(news,old)
+      localStorage.setItem("goods",JSON.stringify(this.shop))
+    }
+
+  },
+  mounted(){
+    let list = eval(localStorage.getItem("goods"))
+    this.$store.dispatch(types.updata_shop,list)
+    // console.log(this.$store)
+    // console.log(this.$route)
+    // console.log(this.$router)
+  },
+  updated(){
+  },
+  computed:{
+    ...mapGetters([
+        'bfoot','bloadding',"shop"
+    ])
+  },
+  // methods:{
+  //   ...mapActions([
+      
+  //   ])
+  // }
+  // directives:{
+  //   color:{
+  //     inserted(){
+
+  //     }
+  //   }
+  // }
 }
-</style>
+</script>
+
